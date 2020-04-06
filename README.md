@@ -51,3 +51,7 @@
 * 网盘后台在线演示：[http://106.15.248.223/disk-manage](http://106.15.248.223/disk-manage)
 
 
+# 项目效果图
+![输入图片说明](https://images.gitee.com/uploads/images/2020/0406/141807_35dda25b_798389.png "效果图-1.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2020/0406/141819_aef32e7a_798389.png "效果图-2.png")
