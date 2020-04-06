@@ -6,8 +6,8 @@
 
 # 技术栈说明
 * 前端技术
-* * vue.js+ElementUI 作为基础技术框架
-* * WebUploader.js做切块上传框架
+ * vue.js+ElementUI 作为基础技术框架
+ * WebUploader.js做切块上传框架
 
 * 后端技术
 
