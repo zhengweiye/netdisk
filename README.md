@@ -16,6 +16,9 @@
 * ④Redis做分布式缓存、过期监听
 * ⑤Zookeeper做分布式锁
 * ⑥WebSocket+Netty做消息推送
+* ⑦Solr做全文检索引擎
+* ⑧FastDFS做分布式文件系统
+* ⑨基于Redis+token实现接口幂等性
 
 # 功能说明
 
