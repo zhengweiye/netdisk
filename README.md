@@ -8,7 +8,7 @@
 * 前端技术
 ①vue.js+ElementUI 作为基础技术框架
 ②WebUploader.js做切块上传框架
-
+- 这里是列表文本
 * 后端技术
 ①Maven+SpringBoot+SpringDataJPA作为基础架构
 ②Dubbo+Zookeeper作为服务治理架构
