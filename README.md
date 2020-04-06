@@ -6,11 +6,16 @@
 
 # 技术栈说明
 * 前端技术
- * vue.js+ElementUI 作为基础技术框架
- * WebUploader.js做切块上传框架
+①vue.js+ElementUI 作为基础技术框架
+②WebUploader.js做切块上传框架
 
 * 后端技术
-
+①Maven+SpringBoot+SpringDataJPA作为基础架构
+②Dubbo+Zookeeper作为服务治理架构
+③Nacos作为配置中心
+④Redis做分布式缓存、过期监听
+⑤Zookeeper做分布式锁
+⑥WebSocket+Netty做消息推送
 
 # 功能说明
 
