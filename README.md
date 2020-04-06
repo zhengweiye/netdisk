@@ -34,9 +34,9 @@
 * ⑩文件搜索：集成Solr框架实现全文搜索功能
 * ⑪文件存储：集成FastDFS框架实现文件分布式存储
 * ⑫其他琐碎功能：比如，复杂、移动、预览、删除、重命名、在线创建、在线编辑、编辑历史版本留痕等等
-* ⑬Office在线编辑：<font color=red>后期更新</font>
-* ⑭h5版本客户端：<font color=red>后期更新</font>
-* ⑮c/s版本客户端：<font color=red>后期更新</font>
+* ⑬Office在线编辑：<font color=blue> **后期更新** </font>
+* ⑭h5版本客户端：<font color=red> **后期更新** </font>
+* ⑮c/s版本客户端：<font color=red> **后期更新** </font>
 
 
 #### 二、后台系统
