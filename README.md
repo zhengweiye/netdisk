@@ -48,7 +48,8 @@
 
 # 其他相关地址说明
 * 慕课网专栏：https://www.imooc.com/read/73
-* 前端工程：
+* 前端工程（网盘）：https://gitee.com/zwyyf/disk.git
+* 前端工程（后台）：https://gitee.com/zwyyf/disk-manage.git
 * 网盘系统在线演示：[http://106.15.248.223/disk](http://106.15.248.223/disk)
 * 网盘后台在线演示：[http://106.15.248.223/disk-manage](http://106.15.248.223/disk-manage)
 
