@@ -32,7 +32,7 @@
 			<artifactId>aspose-words</artifactId>
 			<version>15.8.0</version>
 		</dependency>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>com.aspose</groupId>
 			<artifactId>aspose-excels</artifactId>
 			<version>8.5.2</version>
@@ -41,7 +41,7 @@
 		    <groupId>com.aspose</groupId>
 		    <artifactId>aspose-slides</artifactId>
 		    <version>19.3</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- openoffice -->		
 		<!-- <dependency>
