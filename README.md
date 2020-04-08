@@ -38,8 +38,8 @@
 * ⑭h5版本客户端：<font color=red> **后期更新** </font>
 * ⑮c/s版本客户端：<font color=red> **后期更新** </font>
 * ⑯业务系统API客户端：<font color=red> **后期更新** </font>
-* ⑰图片新增水印：<font color=red> **后期更新** </font>
-* ⑱图片在线裁剪：<font color=red> **后期更新** </font>
+* ⑰图片新增水印：<font color=red> **后期更新**大概4-12更新</font>
+* ⑱图片在线裁剪：<font color=red> **后期更新**大概4-12更新 </font>
 
 #### 二、后台系统
 * ①组件管理：主要管理文件的预览和编辑组件
