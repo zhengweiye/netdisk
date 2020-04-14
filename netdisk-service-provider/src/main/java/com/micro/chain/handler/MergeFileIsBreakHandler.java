@@ -38,5 +38,4 @@ public class MergeFileIsBreakHandler extends Handler{
 			throw new RuntimeException("MergeFileIsBreakHandler==参数不对");
 		}
 	}
-
 }

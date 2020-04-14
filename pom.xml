@@ -18,6 +18,8 @@
 		<module>utils-filesearch</module>
 		<module>netdisk-log-api</module>
 		<module>netdisk-log-provider</module>
+		<module>netdisk-client</module>
+		<module>netdisk-client-provider</module>
 	</modules>
 	
 	<parent>  

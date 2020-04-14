@@ -9,10 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.micro.db.dao.DiskAppFileDao;
 import com.micro.db.dao.DiskFileDao;
 import com.micro.db.dao.DiskMd5ChunkDao;
 import com.micro.disk.bean.DownloadBean;
 import com.micro.disk.service.FilePreviewService;
+import com.micro.model.DiskAppFile;
 import com.micro.model.DiskFile;
 import com.micro.model.DiskMd5Chunk;
 import com.micro.store.context.StoreContext;
@@ -28,6 +30,8 @@ public class FilePreviewServiceImpl implements FilePreviewService{
 	private DiskMd5ChunkDao diskMd5ChunkDao;
 	@Autowired
 	private DiskFileDao diskFileDao;
+	@Autowired
+	private DiskAppFileDao diskAppFileDao;
 	
 	@Override
 	public byte[] getBytesByUrl(String url) {
@@ -36,7 +40,20 @@ public class FilePreviewServiceImpl implements FilePreviewService{
 	
 	@Override
 	public List<String> getChunksByFileid(String fileid) {
-		return null;
+		DiskFile df=diskFileDao.findOne(fileid);
+		if(df==null){
+			throw new RuntimeException("fileid="+fileid+"不存在");
+		}
+		return getChunksByFilemd5(df.getFilemd5());
+	}
+	
+	@Override
+	public List<String> getChunksByAppFileid(String fileid) {
+		DiskAppFile daf=diskAppFileDao.findOne(fileid);
+		if(daf==null){
+			throw new RuntimeException("fileid="+fileid+"不存在");
+		}
+		return getChunksByFilemd5(daf.getFilemd5());
 	}
 
 	@Override

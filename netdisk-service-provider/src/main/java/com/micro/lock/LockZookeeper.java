@@ -13,8 +13,9 @@ public class LockZookeeper implements Lock {
 	
 	private LockZookeeper(){}
 	public static LockZookeeper getInstance(String url){
+		//保证zkClient是单例
 		synchronized (LockZookeeper.class) {
-			if(zkClient==null){					
+			if(zkClient==null){		
 				zkClient = new ZkClient(url, 30000);
 				boolean b=zkClient.exists(ROOT);
 				if(b==false){
@@ -22,6 +23,7 @@ public class LockZookeeper implements Lock {
 				}
 			}
 		}
+		//LockZookeeper是多例
 		return new LockZookeeper();
 	}
 	
@@ -30,7 +32,6 @@ public class LockZookeeper implements Lock {
 	public void getLock(String lockname) {
 		try{			
 			boolean result=tryLock(lockname);
-			System.out.println("获取锁："+lockname+"....."+result);
 			if (!result) {
 				// 等待
 				waitLock(lockname);

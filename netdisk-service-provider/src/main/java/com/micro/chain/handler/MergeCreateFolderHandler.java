@@ -59,12 +59,9 @@ public class MergeCreateFolderHandler extends Handler {
 				List<DiskFile> folders = new ArrayList<>();
 
 				try {
-					System.out.println("=====================================================【"+relativepath+"】==============================================================================");
 					for (int i = 0; i < names.length - 1; i++) {
 						String name=names[i];
-						System.out.println("参数：userid="+userid+"..pid="+pid+"..name="+name);
 						DiskFile df = diskFileDao.findFolder(userid, pid, name);
-						System.out.println("查询结果："+df);
 						if (df == null) {
 							df = new DiskFile();
 							df.setFilename(name);
@@ -78,8 +75,6 @@ public class MergeCreateFolderHandler extends Handler {
 						}
 						pid = df.getId();
 						folders.add(df);
-						System.out.println("执行结果："+df.getId());
-						System.out.println("--------------------------------------------------");
 					}
 
 					// 写到下一个Handler
@@ -87,7 +82,6 @@ public class MergeCreateFolderHandler extends Handler {
 					bean.setFolders(folders);
 					this.updateRequest(bean);
 
-					System.out.println("===================================================================================================================================");
 				} catch (Exception e) {
 					throw new RuntimeException("MergeCreateFolderHandler=="+e.getMessage());
 				}

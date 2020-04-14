@@ -32,7 +32,6 @@ public class WebSocketListener {
 		pushService.pushCapacityOnOpen(userid, session);
 		pushService.pushNoticeOnOpen(userid, session);
 		
-		System.out.println("onOpen.....token="+token+"....userid="+userid+"....数量="+SessionUtils.getChannels(userid).size());
 	}
 	
 	//连接关闭
@@ -45,7 +44,6 @@ public class WebSocketListener {
 			return;
 		}
     	SessionUtils.removeChannel(userid, token);
-    	System.out.println("onClose.....token="+token+"....userid="+userid+"....数量="+SessionUtils.getChannels(userid).size());
 	}
 	
 	//发生错误
@@ -59,7 +57,5 @@ public class WebSocketListener {
 		}
 		
 		SessionUtils.removeChannel(userid, token);
-		System.out.println("onError.....token="+token+"....userid="+userid+"....数量="+SessionUtils.getChannels(userid).size());
-		System.out.println("异常信息："+error.getMessage());
 	}
 }

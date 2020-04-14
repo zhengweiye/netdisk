@@ -70,185 +70,192 @@ public class CollectionLogAop {
 	//前置aop
 	@Before("pointcut()")
 	public void before(JoinPoint jp){
-		try{
-			Object target=jp.getTarget();
-			Signature signature = jp.getSignature();
-			String method=signature.getName();
-			
-			//目标对象
-			String targetmethod=signature.getDeclaringTypeName() + "." + method;
-			//目标参数
-			MethodSignature methodSignature = (MethodSignature) signature;
-			Class<?>[] types=methodSignature.getParameterTypes();
-			String[] names = methodSignature.getParameterNames();
-			Object[] values = jp.getArgs();
-			
-			Class clazz=target.getClass();
-			Method m=clazz.getDeclaredMethod(method, types);//Method m=clazz.getMethod(method, types);
-			
-			//Logs logs=m.getAnnotation(Logs.class);
-			LogInfo bean=LogContextHolder.get();
-			if(bean==null){
-				bean=new LogInfo();
-			}
-			//基本信息
-			bean.setProjectname(logProperties.getProjectname());
-			bean.setProjectdesc(logProperties.getProjectdesc());
-			bean.setTargetmethod(targetmethod);
-			bean.setStarttime(df.format(new Date()));
-			
-			RequestAttributes ra=RequestContextHolder.getRequestAttributes();
-			if(ra!=null){
-				ServletRequestAttributes attributes = (ServletRequestAttributes) ra;
-				HttpServletRequest request = attributes.getRequest();
+		if("on".equals(logProperties.getState())){
+			try{
+				Object target=jp.getTarget();
+				Signature signature = jp.getSignature();
+				String method=signature.getName();
 				
-				//IP地址
-				String requestip=request.getRemoteAddr();//controller
-				bean.setRequestip(requestip);
+				//目标对象
+				String targetmethod=signature.getDeclaringTypeName() + "." + method;
+				//目标参数
+				MethodSignature methodSignature = (MethodSignature) signature;
+				Class<?>[] types=methodSignature.getParameterTypes();
+				String[] names = methodSignature.getParameterNames();
+				Object[] values = jp.getArgs();
 				
-				//用户信息【针对Controller工程，Service工程无法获取userid和username】
-				bean.setUserid(request.getAttribute("userid")==null?"":request.getAttribute("userid").toString());
-				bean.setUsername(request.getAttribute("username")==null?"":request.getAttribute("username").toString());
-			}
-			//traceid
-			String traceid=RpcContext.getContext().getAttachment("traceid");
-			if(!StringUtils.isEmpty(traceid)){
-				if(StringUtils.isEmpty(bean.getTraceid())){					
-					bean.setTraceid(traceid);
+				Class clazz=target.getClass();
+				Method m=clazz.getDeclaredMethod(method, types);//Method m=clazz.getMethod(method, types);
+				
+				//Logs logs=m.getAnnotation(Logs.class);
+				LogInfo bean=LogContextHolder.get();
+				if(bean==null){
+					bean=new LogInfo();
 				}
-			}
-			//requestip
-			String requestip=RpcContext.getContext().getAttachment("requestip");
-			if(!StringUtils.isEmpty(requestip)){
-				if(StringUtils.isEmpty(bean.getRequestip())){					
+				//基本信息
+				bean.setProjectname(logProperties.getProjectname());
+				bean.setProjectdesc(logProperties.getProjectdesc());
+				bean.setTargetmethod(targetmethod);
+				bean.setStarttime(df.format(new Date()));
+				
+				RequestAttributes ra=RequestContextHolder.getRequestAttributes();
+				if(ra!=null){
+					ServletRequestAttributes attributes = (ServletRequestAttributes) ra;
+					HttpServletRequest request = attributes.getRequest();
+					
+					//IP地址
+					String requestip=request.getRemoteAddr();//controller
 					bean.setRequestip(requestip);
+					
+					//用户信息【针对Controller工程，Service工程无法获取userid和username】
+					bean.setUserid(request.getAttribute("userid")==null?"":request.getAttribute("userid").toString());
+					bean.setUsername(request.getAttribute("username")==null?"":request.getAttribute("username").toString());
 				}
+				//traceid
+				String traceid=RpcContext.getContext().getAttachment("traceid");
+				if(!StringUtils.isEmpty(traceid)){
+					if(StringUtils.isEmpty(bean.getTraceid())){					
+						bean.setTraceid(traceid);
+					}
+				}
+				//requestip
+				String requestip=RpcContext.getContext().getAttachment("requestip");
+				if(!StringUtils.isEmpty(requestip)){
+					if(StringUtils.isEmpty(bean.getRequestip())){					
+						bean.setRequestip(requestip);
+					}
+				}
+				
+				//userid
+				String userid=RpcContext.getContext().getAttachment("userid");
+				if(!StringUtils.isEmpty(userid)){
+					if(StringUtils.isEmpty(bean.getUserid())){					
+						bean.setUserid(userid);
+					}
+				}
+				//username
+				String username=RpcContext.getContext().getAttachment("username");
+				if(!StringUtils.isEmpty(username)){
+					if(StringUtils.isEmpty(bean.getUsername())){					
+						bean.setUsername(username);
+					}
+				}
+				
+				//请求参数
+				Map<String,Object> map=new HashMap<String,Object>();
+				for(int i=0;i<names.length;i++){
+					Class<?> type=types[i];
+					String name=names[i];
+					Object value=values[i];
+					String key=type.getSimpleName()+"."+name;
+					if(type.getSimpleName().equals("HttpServletRequest")){
+						value="HttpServletRequest对象";
+					}
+					if(type.getSimpleName().equals("HttpServletResponse")){
+						value="HttpServletResponse对象";				
+					}
+					if(type.getSimpleName().equals("MultipartFile")){
+						value="MultipartFile对象";
+					}
+					if(type.getSimpleName().equals("byte[]")){
+						value="字节数组";
+					}
+					map.put(key,value);
+				}
+				bean.setTargetparams(JsonUtils.objectToJson(map));
+				
+				//保存线程变量
+				LogContextHolder.set(bean);
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-			
-			//userid
-			String userid=RpcContext.getContext().getAttachment("userid");
-			if(!StringUtils.isEmpty(userid)){
-				if(StringUtils.isEmpty(bean.getUserid())){					
-					bean.setUserid(userid);
-				}
-			}
-			//username
-			String username=RpcContext.getContext().getAttachment("username");
-			if(!StringUtils.isEmpty(username)){
-				if(StringUtils.isEmpty(bean.getUsername())){					
-					bean.setUsername(username);
-				}
-			}
-			
-			//请求参数
-			Map<String,Object> map=new HashMap<String,Object>();
-			for(int i=0;i<names.length;i++){
-				Class<?> type=types[i];
-				String name=names[i];
-				Object value=values[i];
-				String key=type.getSimpleName()+"."+name;
-				if(type.getSimpleName().equals("HttpServletRequest")){
-					value="HttpServletRequest对象";
-				}
-				if(type.getSimpleName().equals("HttpServletResponse")){
-					value="HttpServletResponse对象";				
-				}
-				if(type.getSimpleName().equals("MultipartFile")){
-					value="MultipartFile对象";
-				}
-				if(type.getSimpleName().equals("byte[]")){
-					value="字节数组";
-				}
-				map.put(key,value);
-			}
-			bean.setTargetparams(JsonUtils.objectToJson(map));
-			
-			//保存线程变量
-			LogContextHolder.set(bean);
-		}catch(Exception e){
-			e.printStackTrace();
 		}
 	}
 	
 	@AfterReturning(value = "pointcut()",returning = "result")
     public void afterReturning(JoinPoint jp,Object result){
-    	LogInfo bean=LogContextHolder.get();
-		if(bean!=null){
-			bean.setEndtime(df.format(new Date()));//设置结束时间
-			bean.setComsumetime(getComsumetime(bean.getStarttime(), bean.getEndtime()));//计算耗时
-			bean.setExecuteresult("执行成功");
-			
-			if(result!=null){				
-				if(result.getClass().getSimpleName().equals("byte[]")){
-					Map<String,Object> map=new HashMap<String,Object>();
-					map.put("byte","字节数组");
-					bean.setReturnresult(JsonUtils.objectToJson(map));
-				}else{				
-					bean.setReturnresult(JsonUtils.objectToJson(result));//返回结果
+		if("on".equals(logProperties.getState())){			
+			LogInfo bean=LogContextHolder.get();
+			if(bean!=null){
+				bean.setEndtime(df.format(new Date()));//设置结束时间
+				bean.setComsumetime(getComsumetime(bean.getStarttime(), bean.getEndtime()));//计算耗时
+				bean.setExecuteresult("执行成功");
+				
+				if(result!=null){				
+					if(result.getClass().getSimpleName().equals("byte[]")){
+						Map<String,Object> map=new HashMap<String,Object>();
+						map.put("byte","字节数组");
+						bean.setReturnresult(JsonUtils.objectToJson(map));
+					}else{				
+						bean.setReturnresult(JsonUtils.objectToJson(result));//返回结果
+					}
 				}
-			}
-			
-			//【针对controller工程】webuploader上传时，无法在拦截器获取token，只能在代码里面获取
-			if(StringUtils.isEmpty(bean.getUserid())){
-				RequestAttributes ra=RequestContextHolder.getRequestAttributes();
-				if(ra!=null){
-					ServletRequestAttributes attributes = (ServletRequestAttributes) ra;
-					HttpServletRequest request = attributes.getRequest();					
-					bean.setUserid(request.getAttribute("userid")==null?"":request.getAttribute("userid").toString());
-					bean.setUsername(request.getAttribute("username")==null?"":request.getAttribute("username").toString());
+				
+				//【针对controller工程】webuploader上传时，无法在拦截器获取token，只能在代码里面获取
+				if(StringUtils.isEmpty(bean.getUserid())){
+					RequestAttributes ra=RequestContextHolder.getRequestAttributes();
+					if(ra!=null){
+						ServletRequestAttributes attributes = (ServletRequestAttributes) ra;
+						HttpServletRequest request = attributes.getRequest();					
+						bean.setUserid(request.getAttribute("userid")==null?"":request.getAttribute("userid").toString());
+						bean.setUsername(request.getAttribute("username")==null?"":request.getAttribute("username").toString());
+					}
 				}
+				
+				LogContextHolder.clear();//清空
+				saveLogs(bean);
 			}
-			
-			LogContextHolder.clear();//清空
-			saveLogs(bean);
 		}
     }
 
     @AfterThrowing(value = "pointcut()",throwing = "ex")
     public void afterThrowing(JoinPoint jp,Exception ex){
-    	LogInfo bean=LogContextHolder.get();
-		if(bean!=null){
-			bean.setEndtime(df.format(new Date()));//设置结束时间
-			bean.setComsumetime(getComsumetime(bean.getStarttime(), bean.getEndtime()));//计算耗时
-			bean.setExecuteresult(ex.getMessage());//执行结果
-			bean.setReturnresult("");//返回结果
-			
-			//【针对controller工程】webuploader上传时，无法在拦截器获取token，只能在代码里面获取
-			if(StringUtils.isEmpty(bean.getUserid())){
-				RequestAttributes ra=RequestContextHolder.getRequestAttributes();
-				if(ra!=null){
-					ServletRequestAttributes attributes = (ServletRequestAttributes) ra;
-					HttpServletRequest request = attributes.getRequest();					
-					bean.setUserid(request.getAttribute("userid")==null?"":request.getAttribute("userid").toString());
-					bean.setUsername(request.getAttribute("username")==null?"":request.getAttribute("username").toString());
-				}
-			}
-			
-			LogContextHolder.clear();//清空
-			saveLogs(bean);
-		}
+    	if("on".equals(logProperties.getState())){    		
+    		LogInfo bean=LogContextHolder.get();
+    		if(bean!=null){
+    			bean.setEndtime(df.format(new Date()));//设置结束时间
+    			bean.setComsumetime(getComsumetime(bean.getStarttime(), bean.getEndtime()));//计算耗时
+    			bean.setExecuteresult(ex.getMessage());//执行结果
+    			bean.setReturnresult("");//返回结果
+    			
+    			//【针对controller工程】webuploader上传时，无法在拦截器获取token，只能在代码里面获取
+    			if(StringUtils.isEmpty(bean.getUserid())){
+    				RequestAttributes ra=RequestContextHolder.getRequestAttributes();
+    				if(ra!=null){
+    					ServletRequestAttributes attributes = (ServletRequestAttributes) ra;
+    					HttpServletRequest request = attributes.getRequest();					
+    					bean.setUserid(request.getAttribute("userid")==null?"":request.getAttribute("userid").toString());
+    					bean.setUsername(request.getAttribute("username")==null?"":request.getAttribute("username").toString());
+    				}
+    			}
+    			
+    			LogContextHolder.clear();//清空
+    			saveLogs(bean);
+    		}
+    	}
     }
     
+    private ExecutorService es=Executors.newCachedThreadPool();
     public void saveLogs(LogInfo bean){
-    	System.out.println("采集数据："+bean.toString());
-		ExecutorService es=Executors.newCachedThreadPool();
-		es.execute(new Runnable() {
-			@Override
-			public void run() {
-				Map<String,String> params=bean2Map(bean);
-				
-				String host=logProperties.getHost();
-				if(!host.startsWith("http://")){
-					host="http://"+host;
-				}
-				String path=host+"/netdisk-log-provider/log/collect/collectLog";
-				HttpClientUtils.doPost(path, params);
-				
-				//为了提高性能，不用每次都发送日志，可以做以下优化
-				//方案一：每个5s批量发送一次日志
-				//方案二：攒够50条日志，批量发送一次
-			}
-		});
+    	if("on".equals(logProperties.getState())){    		
+    		es.execute(new Runnable() {
+    			@Override
+    			public void run() {
+    				Map<String,String> params=bean2Map(bean);
+    				
+    				String host=logProperties.getHost();
+    				if(!host.startsWith("http://")){
+    					host="http://"+host;
+    				}
+    				String path=host+"/netdisk-log-provider/log/collect/collectLog";
+    				HttpClientUtils.doPost(path, params);
+    				
+    				//为了提高性能，不用每次都发送日志，可以做以下优化
+    				//方案一：每个5s批量发送一次日志
+    				//方案二：攒够50条日志，批量发送一次
+    			}
+    		});
+    	}
 		
 	}
     

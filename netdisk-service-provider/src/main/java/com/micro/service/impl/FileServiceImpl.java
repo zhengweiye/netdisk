@@ -1,11 +1,15 @@
 package com.micro.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -16,6 +20,7 @@ import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.micro.chain.core.Bootstrap;
 import com.micro.chain.core.HandlerInitializer;
 import com.micro.chain.core.Pipeline;
+import com.micro.chain.handler.AppMergeDelRedisHandler;
 import com.micro.chain.handler.ChunkFileSuffixHandler;
 import com.micro.chain.handler.ChunkRedisHandler;
 import com.micro.chain.handler.ChunkStoreHandler;
@@ -57,6 +62,7 @@ import com.micro.chain.handler.FolerSolrHandler;
 import com.micro.chain.handler.MergeCapacityIsEnoughHandler;
 import com.micro.chain.handler.MergeCapacityUpdateHandler;
 import com.micro.chain.handler.MergeCreateFolderHandler;
+import com.micro.chain.handler.MergeDelRedisHandler;
 import com.micro.chain.handler.MergeFileIsBreakHandler;
 import com.micro.chain.handler.MergeFileIsExistHandler;
 import com.micro.chain.handler.MergeGetChunkHandler;
@@ -95,9 +101,11 @@ import com.micro.chain.param.MoveRequest;
 import com.micro.chain.param.RenameRequest;
 import com.micro.chain.param.ShareSaveRequest;
 import com.micro.common.CapacityUtils;
+import com.micro.common.Contanst;
 import com.micro.common.DateUtils;
 import com.micro.common.IconConstant;
 import com.micro.common.ValidateUtils;
+import com.micro.db.dao.DiskAppFileDao;
 import com.micro.db.dao.DiskFileDao;
 import com.micro.db.dao.DiskMd5Dao;
 import com.micro.db.jdbc.DiskFileJdbc;
@@ -110,6 +118,7 @@ import com.micro.disk.bean.MergeFileBean;
 import com.micro.disk.bean.PageInfo;
 import com.micro.disk.service.FileService;
 import com.micro.lock.LockContext;
+import com.micro.model.DiskAppFile;
 import com.micro.model.DiskFile;
 import com.micro.model.DiskMd5;
 import com.micro.utils.SpringContentUtils;
@@ -125,7 +134,11 @@ public class FileServiceImpl implements FileService{
 	@Autowired
 	private DiskMd5Dao diskMd5Dao;
 	@Autowired
+	private DiskAppFileDao diskAppFileDao;
+	@Autowired
 	private SpringContentUtils springContentUtils;
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 	
 	@NacosValue(value="${locktype}",autoRefreshed=true)
     private String locktype;
@@ -159,6 +172,9 @@ public class FileServiceImpl implements FileService{
 	}
 	@Override
 	public List<FileBean> findChildrenFiles(String userid,String pid){
+		if(StringUtils.isEmpty(pid)){
+			pid="0";
+		}
 		List<DiskFile> files=diskFileDao.findListByPid(userid,pid);
 		List<FileBean> beans=new ArrayList<FileBean>();
 		if(!CollectionUtils.isEmpty(files)){
@@ -283,6 +299,8 @@ public class FileServiceImpl implements FileService{
 					pipeline.addLast(springContentUtils.getHandler(MergeCapacityUpdateHandler.class));
 					//13.新增Solr
 					pipeline.addLast(springContentUtils.getHandler(MergeSolrHandler.class));
+					//14.删除Redis记录
+					//pipeline.addLast(springContentUtils.getHandler(MergeDelRedisHandler.class));		
 				}
 			});
 			bootstrap.execute();
@@ -290,8 +308,15 @@ public class FileServiceImpl implements FileService{
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage());
 		}finally{
-			//释放外层锁
-			lockContext.unLock(lockname);
+			try{
+				String key=Contanst.PREFIX_CHUNK_TEMP+"-"+bean.getUserid()+"-"+bean.getUuid()+"-"+bean.getFileid()+"-"+bean.getFilename()+"-*";
+				Set<String> keys = stringRedisTemplate.keys(key);
+				stringRedisTemplate.delete(keys);
+			}catch(Exception e){
+				
+			}finally{				
+				lockContext.unLock(lockname);
+			}
 		}
 	}
 	
@@ -687,5 +712,47 @@ public class FileServiceImpl implements FileService{
 			lockContext.unLock(filemd5);
 		}	
 	}
+
+	@Override
+	public void addFromAppFile(String fileId, String targetFolderId, String userId, String userName) {
+		//1.查询
+		DiskAppFile daf=diskAppFileDao.findOne(fileId);
+		if(daf==null){
+			throw new RuntimeException("fileId="+fileId+",在应用文件里面不存在");
+		}
+		//2.判断targetFolderId是否是文件夹
+		if(StringUtils.isEmpty(targetFolderId)){
+			targetFolderId="0";
+		}
+		if(!"0".equals(targetFolderId)){
+			DiskFile df = diskFileDao.findOne(targetFolderId);			
+			if(df.getFiletype()==1){
+				throw new RuntimeException("targetFolderId="+targetFolderId+",对应的是文件不是文件夹!");
+			}
+		}
+		//3.查询md5
+		DiskMd5 dm = diskMd5Dao.findMd5IsExist(daf.getFilemd5());
+		//4.保存
+		DiskFile file=diskFileDao.findFile(userId, targetFolderId, daf.getFilename(),daf.getFilemd5());
+		if(file==null){
+			file=new DiskFile();
+			file.setPid(targetFolderId);
+			file.setFilename(daf.getFilename());
+			file.setFilesize(daf.getFilesize());
+			file.setFilesuffix(daf.getFilesuffix());
+			file.setTypecode(daf.getTypecode());
+			file.setFilemd5(daf.getFilemd5());
+			file.setFiletype(1);
+			file.setCreateuserid(userId);
+			file.setCreateusername(userName);
+			file.setCreatetime(new Date());
+			file.setThumbnailurl(dm.getThumbnailurl());
+			file.setImgsize(dm.getImgsize());
+			
+			diskFileDao.save(file);
+		}
+	}
+
+	
 	
 }

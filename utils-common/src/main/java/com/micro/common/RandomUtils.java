@@ -21,6 +21,5 @@ public class RandomUtils {
 	
 	public static void main(String[] args) {
 		String str=getRandom(4);
-		System.out.println(str);
 	}
 }

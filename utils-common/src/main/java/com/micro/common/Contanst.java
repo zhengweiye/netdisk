@@ -1,7 +1,7 @@
 package com.micro.common;
 
 public class Contanst {
-	public static String SEPARATOR="@zwy@";
+	//public static String SEPARATOR="@zwy@";
 	
 	public static String RUBBISH="overtime@rubbish";//回收站过期
 	public static String SHARE="overtime@share";//分享过期

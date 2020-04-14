@@ -37,8 +37,8 @@ public class MergeGetChunkHandler extends Handler{
 			List<RedisChunkTemp> temps=new ArrayList<>();
 			
 			//key的规则：userid-uuid-fileid-filename-chunk
-			String key=Contanst.PREFIX_CHUNK_TEMP+"-"+userid+"-"+uuid+"-"+fileid+"-"+filename+Contanst.SEPARATOR;
-			Set<String> keys=stringRedisTemplate.keys(key+"*");
+			String key=Contanst.PREFIX_CHUNK_TEMP+"-"+userid+"-"+uuid+"-"+fileid+"-"+filename+"-*";
+			Set<String> keys=stringRedisTemplate.keys(key);
 			for(String k:keys){
 				String str=stringRedisTemplate.opsForValue().get(k);
 				RedisChunkTemp temp=jsonUtils.jsonToPojo(str, RedisChunkTemp.class);

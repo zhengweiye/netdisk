@@ -1,6 +1,7 @@
 package com.micro.idempotence;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +17,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -52,6 +55,10 @@ public class NoRepeatAop {
 	@Pointcut("pointcut1() && pointcut2()")
 	private void pointcut(){}
 	
+	//LUE脚本
+	private final static String luaText = "return redis.call('SET', KEYS[1], ARGV[1],'EX', ARGV[2],'NX') ";
+	private static RedisScript<String> redisScript = new DefaultRedisScript<String>(luaText, String.class);
+	
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
 	private final static ThreadLocal<NoRepeatBean> tlRepeat=new ThreadLocal<NoRepeatBean>();
@@ -79,9 +86,30 @@ public class NoRepeatAop {
 				}
 				
 				String key=userid+"-"+targetmethod;
+				
+				//方式一：Lua脚本没有原子性问题
+				String result = stringRedisTemplate.execute(
+				        redisScript, 
+				        stringRedisTemplate.getStringSerializer(), 
+				        stringRedisTemplate.getStringSerializer(),
+				        Collections.singletonList(key), 
+				        UUID.randomUUID().toString(),
+				        20 //20s
+				    );
+				    
+			    if (result != null && result.equals("OK")) {
+			    	NoRepeatBean bean=new NoRepeatBean();
+					bean.setKey(key);
+					bean.setStarttime(System.currentTimeMillis());
+					tlRepeat.set(bean);
+			    }else{
+			        throw new RuntimeException("NoRepeatAop抛异常,无法重复执行");	
+			    }
+				
+				//方式二：有原子性问题
+				/*
 				String value=stringRedisTemplate.opsForValue().get(key);
 				if(StringUtils.isEmpty(value)){
-					//证明有权限执行
 					stringRedisTemplate.opsForValue().set(key, UUID.randomUUID().toString(), 10, TimeUnit.SECONDS);
 					NoRepeatBean bean=new NoRepeatBean();
 					bean.setKey(key);
@@ -91,6 +119,7 @@ public class NoRepeatAop {
 				}else{				
 					throw new RuntimeException("NoRepeatAop抛异常,无法重复执行");			
 				}
+				*/
 				
 			}else{
 				throw new RuntimeException("NoRepeatAop抛异常,RequestAttributes获取为空NULL");			

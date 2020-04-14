@@ -7,19 +7,18 @@ import lombok.Data;
 @Data
 public class AppFileBean implements Serializable {
 	private String id;
+	private String appname;
 	private String appid;
 	private String businessid;
-	private String businesstag;
-	private String pid;
+	private String businesstype;
+	private String fileicon;
 	private String filename;
 	private long filesize;
 	private String filesuffix;
-	private String fileicon;//base64
 	private String typecode;
 	private String filemd5;
-	private Integer filetype;//0文件夹，1文件
-	private Integer delstatus;//0正常，1删除
 	private String createuserid;
 	private String createusername;
-	private Date createtime;
+	private String createtime;
+	private Integer isbreak;//0正常,1为损坏
 }

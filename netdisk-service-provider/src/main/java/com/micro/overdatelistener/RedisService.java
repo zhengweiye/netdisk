@@ -78,8 +78,9 @@ public class RedisService {
 		bootstrap.execute();
 	}
 	
+	@Deprecated
 	public void deleteTemps(String key) {
-		String[] arrs=key.split(Contanst.SEPARATOR);
+		String[] arrs=null;//key.split(Contanst.SEPARATOR);
 		String keyPrefix=arrs[0];
 		String chunk=arrs[1];
 		String storepath=arrs[2];

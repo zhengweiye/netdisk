@@ -20,6 +20,12 @@ public interface FilePreviewService {
 	 */
 	public List<String> getChunksByFileid(String fileid);
 	/**
+	 * 根据fileid下载
+	 * @param fileid
+	 * @return
+	 */
+	public List<String> getChunksByAppFileid(String fileid);
+	/**
 	 * 根据md5下载
 	 * @param filemd5
 	 * @return

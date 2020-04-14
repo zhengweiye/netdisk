@@ -208,7 +208,6 @@ public class FileDownloadController {
 			String filename = downloadname + "." + downloadsuffix;
 			String paths = path + "." + downloadsuffix;
 			//String ip=IpUtils.getInternetIp();
-			//System.out.println("ip地址="+ip);
 			//返回具体的路径，让前端直接直连下载
 			String url = "http://" + downloadhost + "/"+appname+"/disk/filedownload/downloadZip?filename=" + filename + "&path=" + paths;
 

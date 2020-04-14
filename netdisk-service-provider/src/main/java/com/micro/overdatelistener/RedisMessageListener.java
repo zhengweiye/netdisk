@@ -15,7 +15,6 @@ public class RedisMessageListener implements MessageListener{
 	public void onMessage(Message message, byte[] pattern) {
 		String expireKey = new String(message.getBody());
 		
-		System.out.println("过期的key："+expireKey+"....................................");
 		
 		if(expireKey.startsWith(Contanst.SHARE)){//分享过期
 			try{
@@ -39,7 +38,7 @@ public class RedisMessageListener implements MessageListener{
 		}else if(expireKey.startsWith(Contanst.PREFIX_CHUNK_TEMP)){//切块临时记录过期
 			try{
 				
-				redisService.deleteTemps(expireKey);
+				//redisService.deleteTemps(expireKey);
 			}catch(Exception e){
 				//第二步：如果失败了，则做备份处理				
 			}

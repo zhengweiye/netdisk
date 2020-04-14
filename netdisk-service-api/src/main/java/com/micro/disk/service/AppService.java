@@ -26,4 +26,10 @@ public interface AppService {
 	 * @return
 	 */
 	public PageInfo<UserBean> findUserListByAppid(Integer page,Integer limit,String appid,String username);
+	/**
+	 * 判断APPID是否存在
+	 * @param appid
+	 * @return
+	 */
+	public boolean checkAppID(String appid);
 }

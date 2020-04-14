@@ -13,14 +13,12 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
-@Table(name="disk_app_file",
+@Table(name="disk_app_registry_file",
 	indexes = {
 		@Index(columnList = "appid"),
 		@Index(columnList = "businessid"),
 		@Index(columnList = "businesstype"),
-		@Index(columnList = "pid"),
 		@Index(columnList = "typecode"),
-		@Index(columnList = "filetype"),
 		@Index(columnList = "delstatus"),
 		@Index(columnList = "createuserid")
 	}
@@ -43,9 +41,6 @@ public class DiskAppFile implements Serializable {
 	@Column(name="businesstype",columnDefinition="VARCHAR(20)")
 	private String businesstype;
 	
-	@Column(name="pid",columnDefinition="VARCHAR(50)")
-	private String pid;
-	
 	@Column(name="filename",columnDefinition="VARCHAR(255)")
 	private String filename;
 	
@@ -60,8 +55,6 @@ public class DiskAppFile implements Serializable {
 	@Column(name="filemd5",columnDefinition="VARCHAR(200)")
 	private String filemd5;
 	
-	private Integer filetype;//0文件夹，1文件
-	
 	private Integer delstatus;//0正常，1删除
 	
 	@Column(name="createuserid",columnDefinition="VARCHAR(20)")
@@ -71,4 +64,6 @@ public class DiskAppFile implements Serializable {
 	private String createusername;
 	
 	private Date createtime;
+	
+	private Integer isbreak;//0正常,1为损坏
 }

@@ -36,4 +36,19 @@ public class FiledealImgStrategy implements FiledealStrategy{
 		//更新disk_md5字段
 		diskMd5Dao.updateField(thumbnailurl, imgsize, filemd5);
 	}
+
+	@Override
+	public void deal(String filemd5, List<RedisChunkTemp> temps) {
+		//获取图片字节流
+		byte[] bytes=imageUtils.getTotalbytes(temps);
+		
+		//获取宽高
+		String imgsize=imageUtils.getImgWithAndHeight(bytes);
+		
+		//压缩图片
+		String thumbnailurl=imageUtils.compressImg(bytes);
+		
+		//更新disk_md5字段
+		diskMd5Dao.updateField(thumbnailurl, imgsize, filemd5);		
+	}
 }

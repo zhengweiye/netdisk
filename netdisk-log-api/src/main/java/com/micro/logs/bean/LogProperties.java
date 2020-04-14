@@ -9,6 +9,7 @@ public class LogProperties {
 	private String projectname;
 	private String projectdesc;
 	private String host;
+	private String state="on";//on,off
 	
 	public String getProjectname() {
 		return projectname;
@@ -27,6 +28,12 @@ public class LogProperties {
 	}
 	public void setHost(String host) {
 		this.host = host;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
 	}
 	
 }

@@ -20,4 +20,11 @@ public class FiledealContext {
 			strategy.deal(fileid,filemd5, temps);
 		}
 	}
+	public void deal(String typecode,String filemd5,List<RedisChunkTemp> temps){
+		Object obj=springContentUtils.getBean(typecode);
+		if(obj!=null){
+			FiledealStrategy strategy=(FiledealStrategy) obj;
+			strategy.deal(filemd5, temps);
+		}
+	}
 }

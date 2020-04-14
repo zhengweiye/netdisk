@@ -139,7 +139,6 @@ public interface FileService {
 	 */
 	public List<FileBean> findFolderList(String userid,String pid,List<String> ids);
 	
-
 	/**
 	 * 复制
 	 * @param userid
@@ -205,4 +204,13 @@ public interface FileService {
 	 * @param username
 	 */
 	public FileBean addFile(String pid,String filename,byte[] bytes,String userid,String username);
+	
+	/**
+	 * 从应用文件转存到个人文件
+	 * @param fileId
+	 * @param targetFolderId
+	 * @param userId
+	 * @param userName
+	 */
+	public void addFromAppFile(String fileId,String targetFolderId,String userId,String userName);
 }

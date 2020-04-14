@@ -42,9 +42,8 @@ public class ChunkRedisHandler extends Handler{
 			temp.setChunk(chunk.getChunk());		
 			
 			//保存到Redis，并且设置key过期
-			String key=Contanst.PREFIX_CHUNK_TEMP+"-"+chunk.getUserid()+"-"+chunk.getUuid()+"-"+chunk.getId()+"-"+chunk.getName();
-			String k=key+Contanst.SEPARATOR+chunk.getChunk()+Contanst.SEPARATOR+chunk.getStorepath();
-			stringRedisTemplate.opsForValue().set(k, jsonUtils.objectToJson(temp), 10, TimeUnit.MINUTES);
+			String key=Contanst.PREFIX_CHUNK_TEMP+"-"+chunk.getUserid()+"-"+chunk.getUuid()+"-"+chunk.getId()+"-"+chunk.getName()+"-"+chunk.getChunk();
+			stringRedisTemplate.opsForValue().set(key, jsonUtils.objectToJson(temp), 30, TimeUnit.MINUTES);
 		}else{
 			throw new RuntimeException("UploadChunkRedisHandler==参数不对");
 		}

@@ -44,7 +44,7 @@ public class DiskMd5Jdbc {
 					Md5Bean row=new Md5Bean();
 					row.setId(map.get("id")==null?"":map.get("id").toString());
 					row.setMd5(map.get("md5")==null?"":map.get("md5").toString());
-					row.setFilenum(Long.parseLong(map.get("")==null?"0":map.get("").toString()));
+					row.setFilenum(Long.parseLong(map.get("filenum")==null?"0":map.get("filenum").toString()));
 					row.setTypecode(map.get("typecode")==null?"":map.get("typecode").toString());
 					row.setFilename(map.get("filename")==null?"":map.get("filename").toString());
 					row.setFilesuffix(map.get("filesuffix")==null?"":map.get("filesuffix").toString());

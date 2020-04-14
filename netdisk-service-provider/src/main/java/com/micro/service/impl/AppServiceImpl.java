@@ -4,11 +4,14 @@ import java.util.Date;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.util.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.micro.common.ValidateUtils;
+import com.micro.common.json.JsonJackUtils;
+import com.micro.common.json.JsonUtils;
 import com.micro.db.dao.DiskAppDao;
 import com.micro.db.jdbc.DiskAppJdbc;
 import com.micro.disk.bean.AppBean;
@@ -25,6 +28,9 @@ public class AppServiceImpl implements AppService{
 	private DiskAppDao diskAppDao;
 	@Autowired
 	private DiskAppJdbc diskAppJdbc;
+	@Autowired
+	private RedisTemplate<String,String> redisTemplate;
+	private JsonUtils jsonUtils=new JsonJackUtils();
 	
 	@Override
 	public void save(AppBean bean) {
@@ -88,4 +94,20 @@ public class AppServiceImpl implements AppService{
 		return null;
 	}
 
+	@Override
+	public boolean checkAppID(String appid) {
+		//加缓存
+		String json=redisTemplate.opsForValue().get(appid);
+		if(StringUtils.isEmpty(json)){			
+			DiskApp da=diskAppDao.findOne(appid);
+			if(da==null){
+				return false;
+			}else{
+				redisTemplate.opsForValue().set(appid, jsonUtils.objectToJson(da));
+				return true;
+			}
+		}else{
+			return true;
+		}
+	}
 }
