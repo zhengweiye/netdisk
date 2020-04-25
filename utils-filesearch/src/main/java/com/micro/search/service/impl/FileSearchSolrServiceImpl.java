@@ -64,7 +64,8 @@ public class FileSearchSolrServiceImpl implements FileSearchService{
 			query.setHighlightSimplePost("</span>"); 
 			
 			//查询结果
-			QueryResponse response =solrClient.query(query);
+			//QueryResponse response =solrClient.query(query);
+			QueryResponse response =solrClient.query("disk",query);
 
 			//取查询结果
 			SolrDocumentList solrDocumentList = response.getResults();
@@ -153,8 +154,8 @@ public class FileSearchSolrServiceImpl implements FileSearchService{
 			document.addField("createusername",bean.getCreateusername());
 			document.addField("createtime",bean.getCreatetime());
 			
-			solrClient.add(document);
-			solrClient.commit();		
+			solrClient.add("disk", document);			
+			solrClient.commit("disk");		
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage());
 		}
@@ -163,8 +164,8 @@ public class FileSearchSolrServiceImpl implements FileSearchService{
 	@Override
 	public void delete(String id) {
 		try{
-			solrClient.deleteById(id);
-			solrClient.commit();
+			solrClient.deleteById("disk", id);
+			solrClient.commit("disk");
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage());
 		}
@@ -172,8 +173,8 @@ public class FileSearchSolrServiceImpl implements FileSearchService{
 	@Override
 	public void deleteAll() {
 		try{			
-			solrClient.deleteByQuery("*:*");
-			solrClient.commit();		
+			solrClient.deleteByQuery("disk","*:*");
+			solrClient.commit("disk");		
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage());
 		}
@@ -185,7 +186,8 @@ public class FileSearchSolrServiceImpl implements FileSearchService{
 			SolrQuery query = new SolrQuery();
 			query.setQuery("*:*");
 			//查询结果
-			QueryResponse response =solrClient.query(query);
+			//QueryResponse response =solrClient.query(query);
+			QueryResponse response =solrClient.query("disk",query);
 			return response.getResults().getNumFound();
 		}catch(Exception e){
 			throw new RuntimeException(e.getMessage());
